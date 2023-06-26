@@ -8,7 +8,7 @@ import (
 	"go-gin-blog-api/pkg/setting"
 )
 
-func main() {
+func test() {
 
 	fmt.Println(setting.RunMode) // debug
 
