@@ -1,10 +1,17 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/gin-gonic/gin"
+
+	"go-gin-blog-api/pkg/setting"
 )
 
 func main() {
+
+	fmt.Println(setting.RunMode) // debug
+
 	r := gin.Default()
 
 	r.GET("/ping", func(ctx *gin.Context) {
