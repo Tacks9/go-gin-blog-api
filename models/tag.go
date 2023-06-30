@@ -22,3 +22,26 @@ func GetTagTotal(maps interface{}) (count int) {
 
 	return
 }
+
+// 判断标签是否存在
+func ExistTagByName(name string) bool {
+	var tag Tag
+	db.Select("id").Where("name = ?", name).First(&tag)
+
+	if tag.ID > 0 {
+		return true
+	}
+
+	return false
+}
+
+// 插入标签数据
+func AddTag(name string, state int, createBy string) bool {
+	db.Create(&Tag{
+		Name:      name,
+		State:     state,
+		CreatedBy: createBy,
+	})
+
+	return true
+}

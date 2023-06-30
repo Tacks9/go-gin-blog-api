@@ -6,6 +6,7 @@ import (
 	"go-gin-blog-api/pkg/setting"
 	"go-gin-blog-api/pkg/util"
 
+	"github.com/astaxie/beego/validation"
 	"github.com/gin-gonic/gin"
 	"github.com/unknwon/com"
 )
@@ -44,6 +45,33 @@ func GetTags(c *gin.Context) {
 
 // 新增文章标签
 func AddTag(c *gin.Context) {
+	name := c.Query("name")
+	state := com.StrTo(c.DefaultQuery("state", "0")).MustInt()
+	createBy := c.Query("create_by")
+
+	validor := validation.Validation{}
+	validor.Required(name, "name").Message("标签-名称不能为空")
+	validor.MaxSize(name, 100, "name").Message("标签-名称最长为100字符")
+	validor.Required(createBy, "create_by").Message("标签-创建人不能为空")
+	validor.MaxSize(createBy, 100, "create_by").Message("标签-创建人最长为100字符")
+	validor.Range(state, 0, 1, "state").Message("标签-状态只能为1或者0")
+
+	code := e.INVALID_PARAMS
+	if !validor.HasErrors() {
+		if !models.ExistTagByName(name) {
+			code = e.SUCCESS
+			models.AddTag(name, state, createBy)
+		} else {
+			code = e.ERROR_EXIST_TAG
+		}
+	}
+
+	// 数据返回
+	c.JSON(code, gin.H{
+		"code":    code,
+		"message": e.GetMsg(code),
+		"data":    make(map[string]string),
+	})
 }
 
 // 修改文章标签
