@@ -1,6 +1,7 @@
 package routers
 
 import (
+	"go-gin-blog-api/middleware/jwt"
 	"go-gin-blog-api/pkg/e"
 	"go-gin-blog-api/pkg/setting"
 	"go-gin-blog-api/routers/api"
@@ -36,6 +37,9 @@ func InitRouter() *gin.Engine {
 
 	// 封装 API V1
 	apiv1 := r.Group("/api/v1")
+
+	// 引入中间件
+	apiv1.Use(jwt.JWT())
 	{
 		//标签模块
 		//	获取标签列表
