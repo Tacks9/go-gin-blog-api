@@ -29,6 +29,17 @@ func GetTagTotal(maps interface{}) (count int) {
 	return
 }
 
+// 判断标签是否存在 根据ID
+func ExistTagById(id int) bool {
+	var tag Tag
+	db.Select("id").Where("id = ?", id).First(&tag)
+	if tag.ID > 0 {
+		return true
+	}
+
+	return false
+}
+
 // 判断标签是否存在
 func ExistTagByName(name string) bool {
 	var tag Tag
@@ -48,6 +59,13 @@ func AddTag(name string, state int, createdBy string) bool {
 		State:     state,
 		CreatedBy: createdBy,
 	})
+
+	return true
+}
+
+// 修改标签数据
+func EditTag(id int, data interface{}) bool {
+	db.Model(&Tag{}).Where("id = ?", id).Updates(data)
 
 	return true
 }
