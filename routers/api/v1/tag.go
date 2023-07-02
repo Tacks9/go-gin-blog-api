@@ -1,11 +1,12 @@
 package v1
 
 import (
+	"fmt"
 	"go-gin-blog-api/models"
 	"go-gin-blog-api/pkg/e"
+	"go-gin-blog-api/pkg/logging"
 	"go-gin-blog-api/pkg/setting"
 	"go-gin-blog-api/pkg/util"
-	"log"
 	"net/http"
 
 	"github.com/astaxie/beego/validation"
@@ -67,16 +68,18 @@ func AddTag(c *gin.Context) {
 			models.AddTag(name, state, createdBy)
 		} else {
 			code = e.ERROR_EXIST_TAG
+			logging.Info(fmt.Sprintf("code :%d, message:%s", code, e.GetMsg(code)))
 		}
 	} else {
 		// 参数校验
 		for _, err := range validor.Errors {
-			log.Println(err.Key, err.Message)
+			logging.Info(fmt.Sprintf("err.Key :%s, err.Message:%s", err.Key, err.Message))
+
 			// 数据返回
 			c.JSON(http.StatusOK, gin.H{
-				"code":    code,
-				"message": e.GetMsg(code) + err.Key + err.Message,
-				"data":    make(map[string]string),
+				"code": code,
+				"msg":  e.GetMsg(code) + err.Key + err.Message,
+				"data": make(map[string]string),
 			})
 			return
 		}
@@ -84,9 +87,9 @@ func AddTag(c *gin.Context) {
 
 	// 数据返回
 	c.JSON(http.StatusOK, gin.H{
-		"code":    code,
-		"message": e.GetMsg(code),
-		"data":    make(map[string]string),
+		"code": code,
+		"msg":  e.GetMsg(code),
+		"data": make(map[string]string),
 	})
 }
 
@@ -126,6 +129,7 @@ func EditTag(c *gin.Context) {
 			models.EditTag(id, data)
 		} else {
 			code = e.ERROR_NOT_EXIST_TAG
+			logging.Info(fmt.Sprintf("code :%d, message:%s", code, e.GetMsg(code)))
 		}
 	}
 
@@ -151,6 +155,7 @@ func DeleteTag(c *gin.Context) {
 			models.DeleteTag(id)
 		} else {
 			code = e.ERROR_NOT_EXIST_TAG
+			logging.Info(fmt.Sprintf("code :%d, message:%s", code, e.GetMsg(code)))
 		}
 	}
 

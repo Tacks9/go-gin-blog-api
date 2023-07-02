@@ -3,8 +3,8 @@ package api
 import (
 	"go-gin-blog-api/models"
 	"go-gin-blog-api/pkg/e"
+	"go-gin-blog-api/pkg/logging"
 	"go-gin-blog-api/pkg/util"
-	"log"
 	"net/http"
 
 	"github.com/astaxie/beego/validation"
@@ -40,7 +40,8 @@ func GetAuth(c *gin.Context) {
 			token, err := util.GenerateToken(username, password)
 			if err != nil {
 				code = e.ERROR_AUTH_TOKEN
-				log.Println(err)
+				// log.Println(err)
+				logging.Info(err)
 
 			} else {
 				data["token"] = token
@@ -51,7 +52,7 @@ func GetAuth(c *gin.Context) {
 		}
 	} else {
 		for _, err := range validor.Errors {
-			log.Println(err.Key, err.Message)
+			logging.Info(err.Key, err.Message)
 		}
 	}
 
