@@ -1,5 +1,11 @@
 package models
 
+import (
+	"time"
+
+	"github.com/jinzhu/gorm"
+)
+
 type Tag struct {
 	Model
 
@@ -44,4 +50,19 @@ func AddTag(name string, state int, createdBy string) bool {
 	})
 
 	return true
+}
+
+// 创建之前
+func (tag *Tag) BeforeCreate(scope *gorm.Scope) error {
+	// 自动添加时间
+	scope.SetColumn("CreatedOn", time.Now().Unix())
+
+	return nil
+}
+
+// 修改之前
+func (tag *Tag) BeforeUpdate(scope *gorm.Scope) error {
+	scope.SetColumn("ModifiedOn", time.Now().Unix())
+
+	return nil
 }
