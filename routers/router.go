@@ -10,6 +10,9 @@ import (
 
 // 初始化路由
 func InitRouter() *gin.Engine {
+	// 框架启动模式
+	gin.SetMode(setting.RunMode)
+
 	r := gin.New()
 
 	// 日志中间件
@@ -17,9 +20,6 @@ func InitRouter() *gin.Engine {
 
 	// 全局的恢复中间件 用于捕获异常 防止 panic 引起崩溃
 	r.Use(gin.Recovery())
-
-	// 框架启动模式
-	gin.SetMode(setting.RunMode)
 
 	// 封装测试路由
 	r.GET("/test", func(ctx *gin.Context) {
