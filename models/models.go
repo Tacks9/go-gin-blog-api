@@ -38,7 +38,7 @@ func init() {
 	tablePrefix = sec.Key("TABLE_PREFIX").String()
 
 	// 打开数据库配置
-	db, err = gorm.Open(dbType, fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local",
+	db, err = gorm.Open(dbType, fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		user,
 		password,
 		host,
@@ -64,5 +64,5 @@ func init() {
 
 // 关闭数据库
 func CloseDB() {
-	defer db.Close()
+	// defer db.Close()
 }
