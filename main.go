@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"go-gin-blog-api/pkg/logging"
 	"go-gin-blog-api/pkg/setting"
 	"go-gin-blog-api/routers"
 	"net/http"
@@ -10,6 +11,9 @@ import (
 func main() {
 	// 获取路由
 	router := routers.InitRouter()
+
+	// 测试日志启动
+	logging.Info("启动日志...")
 
 	s := &http.Server{
 		Addr:           fmt.Sprintf(":%d", setting.HTTPPort),
