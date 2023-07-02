@@ -3,6 +3,7 @@ package routers
 import (
 	"go-gin-blog-api/pkg/e"
 	"go-gin-blog-api/pkg/setting"
+	"go-gin-blog-api/routers/api"
 	v1 "go-gin-blog-api/routers/api/v1"
 
 	"github.com/gin-gonic/gin"
@@ -29,6 +30,9 @@ func InitRouter() *gin.Engine {
 			"message": e.GetMsg(e.SUCCESS) + " this is test!",
 		})
 	})
+
+	// 获取 token
+	r.GET("/auth", api.GetAuth)
 
 	// 封装 API V1
 	apiv1 := r.Group("/api/v1")

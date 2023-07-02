@@ -31,7 +31,9 @@ func GenerateToken(username, password string) (string, error) {
 	}
 
 	// 创建内部加密方式
-	tokenClaims := jwt.NewWithClaims(jwt.SigningMethodES256, claims)
+	// HMAC SHA-256  采用 SHA-256 哈希函数和一个密钥来生成签名
+	// 具体过程是将JWT的头部和有效载荷进行Base64编码，然后使用一个密钥对编码后的字符串进行签名
+	tokenClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	// 生成签名
 	token, err := tokenClaims.SignedString(jwtSecret)
 
