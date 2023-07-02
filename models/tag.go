@@ -36,11 +36,11 @@ func ExistTagByName(name string) bool {
 }
 
 // 插入标签数据
-func AddTag(name string, state int, createBy string) bool {
+func AddTag(name string, state int, createdBy string) bool {
 	db.Create(&Tag{
 		Name:      name,
 		State:     state,
-		CreatedBy: createBy,
+		CreatedBy: createdBy,
 	})
 
 	return true

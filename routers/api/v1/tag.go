@@ -5,6 +5,8 @@ import (
 	"go-gin-blog-api/pkg/e"
 	"go-gin-blog-api/pkg/setting"
 	"go-gin-blog-api/pkg/util"
+	"log"
+	"net/http"
 
 	"github.com/astaxie/beego/validation"
 	"github.com/gin-gonic/gin"
@@ -47,27 +49,41 @@ func GetTags(c *gin.Context) {
 func AddTag(c *gin.Context) {
 	name := c.Query("name")
 	state := com.StrTo(c.DefaultQuery("state", "0")).MustInt()
-	createBy := c.Query("create_by")
+	createdBy := c.Query("created_by")
 
+	// 表单验证
 	validor := validation.Validation{}
 	validor.Required(name, "name").Message("标签-名称不能为空")
 	validor.MaxSize(name, 100, "name").Message("标签-名称最长为100字符")
-	validor.Required(createBy, "create_by").Message("标签-创建人不能为空")
-	validor.MaxSize(createBy, 100, "create_by").Message("标签-创建人最长为100字符")
+	validor.Required(createdBy, "created_by").Message("标签-创建人不能为空")
+	validor.MaxSize(createdBy, 100, "created_by").Message("标签-创建人最长为100字符")
 	validor.Range(state, 0, 1, "state").Message("标签-状态只能为1或者0")
 
 	code := e.INVALID_PARAMS
 	if !validor.HasErrors() {
+		// 存在性判定
 		if !models.ExistTagByName(name) {
 			code = e.SUCCESS
-			models.AddTag(name, state, createBy)
+			models.AddTag(name, state, createdBy)
 		} else {
 			code = e.ERROR_EXIST_TAG
+		}
+	} else {
+		// 参数校验
+		for _, err := range validor.Errors {
+			log.Println(err.Key, err.Message)
+			// 数据返回
+			c.JSON(http.StatusOK, gin.H{
+				"code":    code,
+				"message": e.GetMsg(code) + err.Key + err.Message,
+				"data":    make(map[string]string),
+			})
+			return
 		}
 	}
 
 	// 数据返回
-	c.JSON(code, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"code":    code,
 		"message": e.GetMsg(code),
 		"data":    make(map[string]string),
