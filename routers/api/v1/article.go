@@ -1,11 +1,12 @@
 package v1
 
 import (
+	"fmt"
 	"go-gin-blog-api/models"
 	"go-gin-blog-api/pkg/e"
+	"go-gin-blog-api/pkg/logging"
 	"go-gin-blog-api/pkg/setting"
 	"go-gin-blog-api/pkg/util"
-	"log"
 	"net/http"
 
 	"github.com/astaxie/beego/validation"
@@ -33,7 +34,8 @@ func GetArticle(c *gin.Context) {
 		}
 	} else {
 		for _, err := range validor.Errors {
-			log.Printf("err.Key :%s, err.Message:%s", err.Key, err.Message)
+			// 报错记录
+			logging.Info("err.Key :%s, err.Message:%s", err.Key, err.Message)
 		}
 	}
 
@@ -79,7 +81,9 @@ func GetArticles(c *gin.Context) {
 
 	} else {
 		for _, err := range validor.Errors {
-			log.Printf("err.Key :%s, err.Message:%s", err.Key, err.Message)
+			// log.Printf("err.Key :%s, err.Message:%s", err.Key, err.Message)
+			logging.Info("err.Key :%s, err.Message:%s", err.Key, err.Message)
+
 		}
 	}
 
@@ -125,10 +129,13 @@ func AddArticle(c *gin.Context) {
 			code = e.SUCCESS
 		} else {
 			code = e.ERROR_NOT_EXIST_TAG
+			logging.Info(fmt.Sprintf("code :%d, message:%s", code, e.GetMsg(code)))
+
 		}
 	} else {
 		for _, err := range valid.Errors {
-			log.Printf("err.key: %s, err.message: %s", err.Key, err.Message)
+			// log.Printf("err.Key :%s, err.Message:%s", err.Key, err.Message)
+			logging.Info("err.Key :%s, err.Message:%s", err.Key, err.Message)
 		}
 	}
 
@@ -191,10 +198,13 @@ func EditArticle(c *gin.Context) {
 			}
 		} else {
 			code = e.ERROR_NOT_EXIST_ARTICLE
+			logging.Info(fmt.Sprintf("code :%d, message:%s", code, e.GetMsg(code)))
+
 		}
 	} else {
 		for _, err := range valid.Errors {
-			log.Printf("err.key: %s, err.message: %s", err.Key, err.Message)
+			// log.Printf("err.Key :%s, err.Message:%s", err.Key, err.Message)
+			logging.Info("err.Key :%s, err.Message:%s", err.Key, err.Message)
 		}
 	}
 
@@ -220,10 +230,12 @@ func DeleteArticle(c *gin.Context) {
 			code = e.SUCCESS
 		} else {
 			code = e.ERROR_NOT_EXIST_ARTICLE
+			logging.Info(fmt.Sprintf("code :%d, message:%s", code, e.GetMsg(code)))
 		}
 	} else {
 		for _, err := range valid.Errors {
-			log.Printf("err.key: %s, err.message: %s", err.Key, err.Message)
+			// log.Printf("err.Key :%s, err.Message:%s", err.Key, err.Message)
+			logging.Info("err.Key :%s, err.Message:%s", err.Key, err.Message)
 		}
 	}
 
