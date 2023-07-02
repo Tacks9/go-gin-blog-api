@@ -70,6 +70,13 @@ func EditTag(id int, data interface{}) bool {
 	return true
 }
 
+// 删除标签数据
+func DeleteTag(id int) bool {
+	db.Where("id = ?", id).Delete(&Tag{})
+
+	return true
+}
+
 // 创建之前
 func (tag *Tag) BeforeCreate(scope *gorm.Scope) error {
 	// 自动添加时间

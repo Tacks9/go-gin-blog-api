@@ -139,4 +139,24 @@ func EditTag(c *gin.Context) {
 
 // 删除文章标签
 func DeleteTag(c *gin.Context) {
+	id := com.StrTo(c.Param("id")).MustInt()
+
+	validor := validation.Validation{}
+	validor.Min(id, 1, "id").Message("标签-ID必须大于0")
+
+	code := e.INVALID_PARAMS
+	if !validor.HasErrors() {
+		code = e.SUCCESS
+		if models.ExistTagById(id) {
+			models.DeleteTag(id)
+		} else {
+			code = e.ERROR_NOT_EXIST_TAG
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code": code,
+		"msg":  e.GetMsg(code),
+		"data": make(map[string]string),
+	})
 }
