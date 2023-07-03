@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"go-gin-blog-api/pkg/logging"
 	"go-gin-blog-api/pkg/setting"
 	"log"
 	"time"
@@ -17,6 +18,7 @@ type Model struct {
 	ID         int `gorm:"primary_key" json:"id"`
 	CreatedOn  int `json:"created_on"`
 	ModifiedOn int `json:"modified_on"`
+	DeletedOn  int `json:"deleted_on"`
 }
 
 func init() {
@@ -65,6 +67,9 @@ func init() {
 	// 设置回调函数
 	db.Callback().Create().Replace("gorm:update_time_stamp", updateTimeStampForCreateCallback)
 	db.Callback().Update().Replace("gorm:update_time_stamp", updateTimeStampForUpdateCallback)
+
+	// 设置删除回调
+	db.Callback().Delete().Replace("gorm:delete", deleteCallback)
 }
 
 // 关闭数据库
@@ -100,4 +105,54 @@ func updateTimeStampForUpdateCallback(scope *gorm.Scope) {
 	if _, ok := scope.Get("gorm:update_column"); !ok {
 		scope.SetColumn("ModifiedOn", time.Now().Unix())
 	}
+}
+
+// 删除记录
+func deleteCallback(scope *gorm.Scope) {
+	if scope.HasError() {
+		logging.Info("deleteCallback Error")
+		return
+	}
+
+	// 尝试获取 delete_option
+	var extraOption string
+	if str, ok := scope.Get("gorm:delete_option"); ok {
+		extraOption = fmt.Sprint(str)
+	}
+
+	// 获取我们约定的删除字段，，
+	deletedOnField, hasDeletedOnField := scope.FieldByName("DeletedOn")
+
+	if !scope.Search.Unscoped && hasDeletedOnField {
+		// 若存在则 UPDATE 软删除
+		scope.Raw(fmt.Sprintf(
+			"UPDATE %v SET %v=%v %v %v",
+			// 当前引用的表名
+			scope.QuotedTableName(),
+			// 删除的字段
+			scope.Quote(deletedOnField.DBName),
+			// 添加值作为 SQL 的参数
+			scope.AddToVars(time.Now().Unix()),
+			// 返回组合好的条件 SQL
+			addExtraSpaceIfExist(scope.CombinedConditionSql()),
+			// 设置删除时间
+			addExtraSpaceIfExist(extraOption),
+		)).Exec()
+	} else {
+		// 若不存在则 DELETE 硬删除
+		scope.Raw(fmt.Sprintf(
+			"DELETE FROM %v%v%v",
+			scope.QuotedTableName(),
+			addExtraSpaceIfExist(scope.CombinedConditionSql()),
+			addExtraSpaceIfExist(extraOption),
+		)).Exec()
+	}
+}
+
+// 新增空格
+func addExtraSpaceIfExist(str string) string {
+	if str != "" {
+		return " " + str
+	}
+	return ""
 }
