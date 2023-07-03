@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go-gin-blog-api/pkg/setting"
 	"log"
+	"time"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
@@ -60,9 +61,43 @@ func init() {
 	// 最大连接数
 	db.DB().SetMaxIdleConns(10)
 	db.DB().SetMaxOpenConns(100)
+
+	// 设置回调函数
+	db.Callback().Create().Replace("gorm:update_time_stamp", updateTimeStampForCreateCallback)
+	db.Callback().Update().Replace("gorm:update_time_stamp", updateTimeStampForUpdateCallback)
 }
 
 // 关闭数据库
 func CloseDB() {
 	// defer db.Close()
+}
+
+// 更新时间
+func updateTimeStampForCreateCallback(scope *gorm.Scope) {
+	if !scope.HasError() {
+		nowTime := time.Now().Unix()
+
+		// 判断有无 created_on 字段
+		if createTimeField, ok := scope.FieldByName("CreatedOn"); ok {
+			// 如果为空进行设置
+			if createTimeField.IsBlank {
+				createTimeField.Set(nowTime)
+			}
+		}
+
+		// 判断有无 modified_on 字段
+		if modifyTimeField, ok := scope.FieldByName("ModifiedOn"); ok {
+			if modifyTimeField.IsBlank {
+				modifyTimeField.Set(nowTime)
+			}
+		}
+	}
+}
+
+// 更新修改时间
+func updateTimeStampForUpdateCallback(scope *gorm.Scope) {
+	// 如果没有 update_column ，就会去设置 modified_on 字段
+	if _, ok := scope.Get("gorm:update_column"); !ok {
+		scope.SetColumn("ModifiedOn", time.Now().Unix())
+	}
 }
