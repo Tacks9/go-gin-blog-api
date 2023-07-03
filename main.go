@@ -8,6 +8,11 @@ import (
 	"net/http"
 )
 
+// @title go-gin-blog-api
+// @version 1.0
+// @description An example blog of gin
+// @contact.name Tacks9
+// @contact.url https://github.com/Tacks9/go-gin-blog-api
 func main() {
 	// 获取路由
 	router := routers.InitRouter()

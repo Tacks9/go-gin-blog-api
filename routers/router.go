@@ -7,7 +7,12 @@ import (
 	"go-gin-blog-api/routers/api"
 	v1 "go-gin-blog-api/routers/api/v1"
 
+	// 导入接口文档
+	_ "go-gin-blog-api/docs"
+
 	"github.com/gin-gonic/gin"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	"github.com/swaggo/gin-swagger/swaggerFiles"
 )
 
 // 初始化路由
@@ -31,6 +36,9 @@ func InitRouter() *gin.Engine {
 			"message": e.GetMsg(e.SUCCESS) + " this is test!",
 		})
 	})
+
+	// API Swagger 生成文档相关
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// 获取 token
 	r.GET("/auth", api.GetAuth)
