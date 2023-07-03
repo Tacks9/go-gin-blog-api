@@ -61,6 +61,13 @@ func DeleteArticle(id int) bool {
 	return true
 }
 
+// 清理文章数据
+func CleanAllArticle() bool {
+	db.Unscoped().Where("deleted_on != ? ", 0).Delete(&Article{})
+
+	return true
+}
+
 // 获取文章的数量
 func GetArticleTotal(maps interface{}) (count int) {
 	db.Model(&Article{}).Where(maps).Count(&count)

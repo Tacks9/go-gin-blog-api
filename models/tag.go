@@ -77,6 +77,13 @@ func DeleteTag(id int) bool {
 	return true
 }
 
+// 清理标签数据
+func CleanAllTag() bool {
+	db.Unscoped().Where("deleted_on != ? ", 0).Delete(&Tag{})
+
+	return true
+}
+
 // 创建之前
 func (tag *Tag) BeforeCreate(scope *gorm.Scope) error {
 	// 自动添加时间
