@@ -29,10 +29,10 @@ func main() {
 
 	// 优雅重启
 	// fvbock/endless 热更新是采取创建子进程后，将原进程退出的方式
-	// endless.DefaultReadTimeOut = setting.ReadTimeout
-	// endless.DefaultWriteTimeOut = setting.WriteTimeout
+	// endless.DefaultReadTimeOut = setting.ServerSetting.ReadTimeout
+	// endless.DefaultWriteTimeOut = setting.ServerSetting.WriteTimeout
 	// endless.DefaultMaxHeaderBytes = 1 << 20
-	// endPoint := fmt.Sprintf(":%d", setting.HTTPPort)
+	// endPoint := fmt.Sprintf(":%d", setting.ServerSetting.HttpPort)
 	// // 实例化对象 endlessServer
 	// server := endless.NewServer(endPoint, router)
 
@@ -48,11 +48,11 @@ func main() {
 	// }
 
 	s := &http.Server{
-		Addr:           fmt.Sprintf(":%d", setting.HTTPPort),
+		Addr:           fmt.Sprintf(":%d", setting.ServerSetting.HttpPort),
 		Handler:        router,
-		ReadTimeout:    setting.ReadTimeout,  // 允许读取的最大时间
-		WriteTimeout:   setting.WriteTimeout, // 允许写入的最大时间
-		MaxHeaderBytes: 1 << 20,              // 请求头的最大字节数
+		ReadTimeout:    setting.ServerSetting.ReadTimeout,  // 允许读取的最大时间
+		WriteTimeout:   setting.ServerSetting.WriteTimeout, // 允许写入的最大时间
+		MaxHeaderBytes: 1 << 20,                            // 请求头的最大字节数
 	}
 
 	s.ListenAndServe()

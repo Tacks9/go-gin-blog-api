@@ -10,7 +10,10 @@ import (
 
 func test() {
 
-	fmt.Println(setting.RunMode) // debug
+	// 初始化全局配置
+	setting.Setup()
+
+	fmt.Println(setting.ServerSetting.RunMode) // debug
 
 	r := gin.Default()
 

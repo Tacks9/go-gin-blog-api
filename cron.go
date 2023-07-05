@@ -3,6 +3,7 @@ package main
 import (
 	"go-gin-blog-api/models"
 	"go-gin-blog-api/pkg/logging"
+	"go-gin-blog-api/pkg/setting"
 	"time"
 
 	"github.com/robfig/cron"
@@ -10,6 +11,11 @@ import (
 
 func main() {
 	logging.Info("Starting...")
+
+	// 初始化全局配置
+	setting.Setup()
+	// 初始化数据库
+	models.Setup()
 
 	// 创建一个定时任务
 	c := cron.New()

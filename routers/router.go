@@ -18,7 +18,7 @@ import (
 // 初始化路由
 func InitRouter() *gin.Engine {
 	// 框架启动模式
-	gin.SetMode(setting.RunMode)
+	gin.SetMode(setting.ServerSetting.RunMode)
 
 	r := gin.New()
 

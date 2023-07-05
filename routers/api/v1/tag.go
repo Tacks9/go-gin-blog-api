@@ -39,7 +39,7 @@ func GetTags(c *gin.Context) {
 	}
 
 	// 分页获取数据
-	data["list"] = models.GetTags(util.GetPage(c), setting.PageSize, maps)
+	data["list"] = models.GetTags(util.GetPage(c), setting.AppSetting.PageSize, maps)
 	data["total"] = models.GetTagTotal(maps)
 
 	okcode := e.SUCCESS
