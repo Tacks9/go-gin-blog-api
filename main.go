@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"go-gin-blog-api/models"
 	"go-gin-blog-api/pkg/logging"
 	"go-gin-blog-api/pkg/setting"
 	"go-gin-blog-api/routers"
@@ -14,6 +15,12 @@ import (
 // @contact.name Tacks9
 // @contact.url https://github.com/Tacks9/go-gin-blog-api
 func main() {
+
+	// 初始化全局配置
+	setting.Setup()
+	// 初始化数据库
+	models.Setup()
+
 	// 获取路由
 	router := routers.InitRouter()
 

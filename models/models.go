@@ -21,31 +21,33 @@ type Model struct {
 	DeletedOn  int `json:"deleted_on"`
 }
 
-func init() {
+// 初始化数据库实例
+func Setup() {
 	var (
-		err                                               error
-		dbType, dbName, user, password, host, tablePrefix string
+		err error
+		// dbType, dbName, user, password, host, tablePrefix string
 	)
 
-	// 读取配置
-	sec, err := setting.Cfg.GetSection("database")
-	if err != nil {
-		log.Fatal(2, "Fail to get section 'database': %v", err)
-	}
+	// // 读取配置
+	// sec, err := setting.Cfg.GetSection("database")
+	// if err != nil {
+	// 	log.Fatal(2, "Fail to get section 'database': %v", err)
+	// }
 
-	dbType = sec.Key("TYPE").String()
-	dbName = sec.Key("NAME").String()
-	user = sec.Key("USER").String()
-	password = sec.Key("PASSWORD").String()
-	host = sec.Key("HOST").String()
-	tablePrefix = sec.Key("TABLE_PREFIX").String()
+	// dbType = sec.Key("TYPE").String()
+	// dbName = sec.Key("NAME").String()
+	// user = sec.Key("USER").String()
+	// password = sec.Key("PASSWORD").String()
+	// host = sec.Key("HOST").String()
+	// tablePrefix = sec.Key("TABLE_PREFIX").String()
 
 	// 打开数据库配置
-	db, err = gorm.Open(dbType, fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		user,
-		password,
-		host,
-		dbName))
+	db, err = gorm.Open(setting.DatabaseSetting.Type, fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+		setting.DatabaseSetting.User,
+		setting.DatabaseSetting.Password,
+		setting.DatabaseSetting.Host,
+		setting.DatabaseSetting.Name,
+	))
 
 	if err != nil {
 		log.Println(err)
@@ -53,16 +55,15 @@ func init() {
 
 	// 获取默认表名
 	gorm.DefaultTableNameHandler = func(db *gorm.DB, defaultTableName string) string {
-		return tablePrefix + defaultTableName
+		return setting.DatabaseSetting.TablePrefix + defaultTableName
 	}
+
+	fmt.Println(setting.DatabaseSetting)
 
 	// 设置表名为单数
 	db.SingularTable(true)
 	// 开启日志
 	db.LogMode(true)
-	// 最大连接数
-	db.DB().SetMaxIdleConns(10)
-	db.DB().SetMaxOpenConns(100)
 
 	// 设置回调函数
 	db.Callback().Create().Replace("gorm:update_time_stamp", updateTimeStampForCreateCallback)
@@ -70,11 +71,15 @@ func init() {
 
 	// 设置删除回调
 	db.Callback().Delete().Replace("gorm:delete", deleteCallback)
+
+	// 最大连接数
+	db.DB().SetMaxIdleConns(10)
+	db.DB().SetMaxOpenConns(100)
 }
 
 // 关闭数据库
 func CloseDB() {
-	// defer db.Close()
+	defer db.Close()
 }
 
 // 更新时间
