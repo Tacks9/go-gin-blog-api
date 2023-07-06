@@ -2,50 +2,55 @@ package logging
 
 import (
 	"fmt"
-	"log"
+	"go-gin-blog-api/pkg/file"
+	"go-gin-blog-api/pkg/setting"
 	"os"
 	"time"
 )
 
-var (
-	LogSavePath = "runtime/logs/"
-	LogSaveName = "log"
-	LogFileExt  = "log"
-	TimeFormat  = "20060102"
-)
-
 // 获取日志目录
 func getLogFilePath() string {
-	return fmt.Sprintf("%s", LogSavePath)
+	return fmt.Sprintf("%s%s", setting.AppSetting.RuntimeRootPath, setting.AppSetting.LogSavePath)
 }
 
-// 获取日志文件位置
-func getLogFileFullPath() string {
-	prefixPath := getLogFilePath()
-	suffixPath := fmt.Sprintf("%s%s.%s", LogSaveName, time.Now().Format(TimeFormat), LogFileExt)
-
-	return fmt.Sprintf("%s%s", prefixPath, suffixPath)
+// 获取日志文件名
+func getLogFileName() string {
+	return fmt.Sprintf("%s%s.%s",
+		setting.AppSetting.LogSaveName,
+		time.Now().Format(setting.AppSetting.TimeFormat),
+		setting.AppSetting.LogFileExt,
+	)
 }
 
-func openLogFile(filepath string) *os.File {
-	//获取文件描述信息
-	_, err := os.Stat(filepath)
-	switch {
-	// 是否存在
-	case os.IsNotExist(err):
-		mkDir()
-	// 是否有权限
-	case os.IsPermission(err):
-		log.Fatalf("Permission:%v", err)
+// 打开日志文件
+func openLogFile(fileName, filePath string) (*os.File, error) {
+	// 获取根目录
+	dir, err := os.Getwd()
+	if err != nil {
+		return nil, fmt.Errorf("os.Getwd err: %v", err)
+	}
+
+	// 获取日志目录路径
+	logFilePath := dir + "/" + filePath
+	// 获取权限
+	perm := file.CheckPermission(logFilePath)
+	if perm == true {
+		return nil, fmt.Errorf("file.CheckPermission Permission denied src: %s", logFilePath)
+	}
+
+	// 获取目录是否存在
+	err = file.IsNotExistMkDir(logFilePath)
+	if err != nil {
+		return nil, fmt.Errorf("file.IsNotExistMkDir src: %s, err: %v", logFilePath, err)
 	}
 
 	// 打开文件
-	handle, err := os.OpenFile(filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	handle, err := file.Open(logFilePath+fileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		log.Fatalf("Fail to OpenFile:%v", err)
+		return nil, fmt.Errorf("Fail to OpenFile :%v", err)
 	}
 
-	return handle
+	return handle, err
 }
 
 // 创建目录

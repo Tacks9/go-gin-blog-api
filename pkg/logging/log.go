@@ -32,10 +32,15 @@ const (
 	FATAL
 )
 
-func init() {
-	filepath := getLogFileFullPath()
-	FHandle = openLogFile(filepath)
-
+// 日志启动  Setup initialize the log instance
+func Setup() {
+	var err error
+	filePath := getLogFilePath()
+	fileName := getLogFileName()
+	FHandle, err = openLogFile(fileName, filePath)
+	if err != nil {
+		log.Fatalf("logging.Setup err: %v", err)
+	}
 	// LstdFlags 日志记录的属性，日期-时间
 
 	// 实例化日志记录器

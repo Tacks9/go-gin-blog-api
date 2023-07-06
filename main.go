@@ -20,6 +20,8 @@ func main() {
 	setting.Setup()
 	// 初始化数据库
 	models.Setup()
+	// 初始化日志配置
+	logging.Setup()
 
 	// 获取路由
 	router := routers.InitRouter()
