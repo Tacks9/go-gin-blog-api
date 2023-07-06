@@ -40,6 +40,9 @@ func InitRouter() *gin.Engine {
 	// API Swagger 生成文档相关
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
+	// Upload 上传图片
+	r.POST("/upload", api.UploadImage)
+
 	// 获取 token
 	r.GET("/auth", api.GetAuth)
 
