@@ -42,11 +42,21 @@ type Database struct {
 	TablePrefix string
 }
 
+// Redis 相关配置
+type Redis struct {
+	Host        string
+	Password    string
+	MaxIdle     int
+	MaxActive   int
+	IdleTimeout time.Duration
+}
+
 // 全局变量
 var (
 	AppSetting      = &App{}
 	ServerSetting   = &Server{}
 	DatabaseSetting = &Database{}
+	RedisSetting    = &Redis{}
 )
 
 // 相同包下的 init 函数：按照源文件编译顺序决定执行顺序
@@ -83,6 +93,12 @@ func Setup() {
 	err = Cfg.Section("database").MapTo(DatabaseSetting)
 	if err != nil {
 		log.Fatalf("Cfg.MapTo DatabaseSetting err: %v", err)
+	}
+
+	// [redis] 相关配置
+	err = Cfg.Section("redis").MapTo(RedisSetting)
+	if err != nil {
+		log.Fatalf("Cfg.MapTo RedisSetting err: %v", err)
 	}
 
 }
