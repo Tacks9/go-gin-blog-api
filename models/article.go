@@ -15,12 +15,13 @@ type Article struct {
 	// 模型关联 类名+ID 的方式去找到这两个类之间的关联关系
 	Tag Tag `json:"tag"`
 
-	Title      string `json:"title"`
-	Desc       string `json:"desc"`
-	Content    string `json:"content"`
-	CreatedBy  string `json:"created_by"`
-	ModifiedBy string `json:"modified_by"`
-	State      int    `json:"state"`
+	Title         string `json:"title"`
+	Desc          string `json:"desc"`
+	Content       string `json:"content"`
+	CoverImageUrl string `json:"cover_image_url"`
+	CreatedBy     string `json:"created_by"`
+	ModifiedBy    string `json:"modified_by"`
+	State         int    `json:"state"`
 }
 
 // 获取单个文章 根据ID
