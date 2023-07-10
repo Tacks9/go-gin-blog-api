@@ -85,15 +85,19 @@ func GetArticles(pageNum int, pageSize int, maps interface{}) (articles []Articl
 }
 
 // 判断文章是否存在 根据 ID
-func ExistArticleByID(id int) bool {
+func ExistArticleByID(id int) (bool, error) {
 	var article Article
-	db.Select("id").Where("id = ?", id).First(&article)
+	err := db.Select("id").Where("id = ?", id).First(&article).Error
 
+	// 增加错误判断
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return false, err
+	}
 	if article.ID > 0 {
-		return true
+		return true, nil
 	}
 
-	return false
+	return false, nil
 }
 
 // 创建之前

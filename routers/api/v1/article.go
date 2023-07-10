@@ -8,6 +8,8 @@ import (
 	"go-gin-blog-api/pkg/logging"
 	"go-gin-blog-api/pkg/setting"
 	"go-gin-blog-api/pkg/util"
+	"go-gin-blog-api/service/article_service"
+
 	"net/http"
 
 	"github.com/astaxie/beego/validation"
@@ -25,10 +27,6 @@ func GetArticle(c *gin.Context) {
 	// 接收上下文
 	appG := app.Gin{C: c}
 
-	// 设置返回值
-	code := e.INVALID_PARAMS
-	var data interface{}
-
 	// 参数接收
 	id := com.StrTo(c.Param("id")).MustInt()
 
@@ -39,20 +37,31 @@ func GetArticle(c *gin.Context) {
 	// 参数有误提前返回
 	if validor.HasErrors() {
 		app.MarkErrors(validor.Errors)
-		appG.Response(http.StatusOK, code, nil)
+		appG.Response(http.StatusOK, e.INVALID_PARAMS, nil)
 		return
 	}
 
-	// 存在
-	if models.ExistArticleByID(id) {
-		data = models.GetArticle(id)
-		code = e.SUCCESS
-	} else {
-		code = e.ERROR_NOT_EXIST_ARTICLE
+	// 获取 Service 层
+	articleService := article_service.Article{ID: id}
+	exists, err := articleService.ExistByID()
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.ERROR_CHECK_EXIST_ARTICLE_FAIL, nil)
+		return
+	}
+	if !exists {
+		appG.Response(http.StatusOK, e.ERROR_NOT_EXIST_ARTICLE, nil)
+		return
+	}
+
+	// 获取文章详情
+	article, err := articleService.Get()
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.ERROR_GET_ARTICLE_FAIL, nil)
+		return
 	}
 
 	// 返回值
-	appG.Response(http.StatusOK, code, data)
+	appG.Response(http.StatusOK, e.SUCCESS, article)
 }
 
 // @Summary 获取多个文章

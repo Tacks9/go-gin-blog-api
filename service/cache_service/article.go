@@ -2,7 +2,6 @@ package cache_service
 
 import (
 	"go-gin-blog-api/pkg/e"
-
 	"strconv"
 	"strings"
 )
@@ -16,12 +15,12 @@ type Article struct {
 	PageSize int
 }
 
-// 获取单个文章 Key
+// [缓存KEY] 获取单个文章 Key
 func (a *Article) GetArticleKey() string {
 	return e.CACHE_ARTICLE + "_" + strconv.Itoa(a.ID)
 }
 
-// 获取文章列表 Key
+// [缓存KEY] 获取文章列表 Key
 func (a *Article) GetArticlesKey() string {
 	keys := []string{
 		e.CACHE_ARTICLE,

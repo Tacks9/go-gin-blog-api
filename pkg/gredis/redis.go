@@ -42,6 +42,7 @@ func Setup() error {
 			return err
 		},
 	}
+	return nil
 }
 
 // 设置 KEY
@@ -73,7 +74,7 @@ func Exists(key string) bool {
 	conn := RedisConn.Get()
 	defer conn.Close()
 
-	exists, err := redis.Bytes(conn.Do("GET", key))
+	exists, err := redis.Bool(conn.Do("GET", key))
 	if err != nil {
 		return false
 	}
