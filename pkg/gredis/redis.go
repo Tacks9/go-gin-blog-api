@@ -1,6 +1,7 @@
 package gredis
 
 import (
+	"encoding/json"
 	"go-gin-blog-api/pkg/setting"
 	"time"
 
@@ -41,4 +42,86 @@ func Setup() error {
 			return err
 		},
 	}
+}
+
+// 设置 KEY
+func Set(key string, data interface{}, time int) error {
+	// 在连接池中获取一个活跃连接
+	conn := RedisConn.Get()
+	defer conn.Close()
+
+	value, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+
+	// 向 Redis 服务器发送命令并返回收到的答复
+	_, err = conn.Do("SET", key, value)
+	if err != nil {
+		return err
+	}
+
+	_, err = conn.Do("EXPIRE", key, time)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// 判断 KEY 是否存在
+func Exists(key string) bool {
+	conn := RedisConn.Get()
+	defer conn.Close()
+
+	exists, err := redis.Bytes(conn.Do("GET", key))
+	if err != nil {
+		return false
+	}
+
+	return exists
+}
+
+// 获取某个 KEY
+func Get(key string) ([]byte, error) {
+	conn := RedisConn.Get()
+	defer conn.Close()
+
+	// 将命令返回转为 Bytes
+	reply, err := redis.Bytes(conn.Do("GET", key))
+	if err != nil {
+		return nil, err
+	}
+
+	return reply, nil
+}
+
+// 删除某个 KEY
+func Delete(key string) (bool, error) {
+	conn := RedisConn.Get()
+	defer conn.Close()
+
+	// 将命令返回转为布尔值
+	return redis.Bool(conn.Do("DEL", key))
+}
+
+// 正则删除某一批 KEY
+func likeDeletes(key string) error {
+	conn := RedisConn.Get()
+	defer conn.Close()
+
+	// 将命令返回转为 []string
+	keys, err := redis.Strings(conn.Do("KEYS", "*"+key+"*"))
+	if err != nil {
+		return err
+	}
+
+	// 循环删除
+	for _, key := range keys {
+		_, err = Delete(key)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
