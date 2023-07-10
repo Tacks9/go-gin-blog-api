@@ -9,7 +9,10 @@ import (
 // 错误提前返回
 func MarkErrors(errors []*validation.Error) {
 	for _, err := range errors {
-		logging.Info(err.Key, err.Message)
+		// 报错记录
+		logging.Info("err.Key :%s, err.Message:%s", err.Key, err.Message)
+
+		// logging.Info(err.Key, err.Message)
 	}
 
 	return

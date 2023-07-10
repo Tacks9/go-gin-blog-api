@@ -3,6 +3,7 @@ package v1
 import (
 	"fmt"
 	"go-gin-blog-api/models"
+	"go-gin-blog-api/pkg/app"
 	"go-gin-blog-api/pkg/e"
 	"go-gin-blog-api/pkg/logging"
 	"go-gin-blog-api/pkg/setting"
@@ -21,34 +22,37 @@ import (
 // @Success 200 {string} json "{"code":200,"data":{},"msg":"ok"}"
 // @Router /api/v1/articles/{id} [get]
 func GetArticle(c *gin.Context) {
-	id := com.StrTo(c.Param("id")).MustInt()
+	// 接收上下文
+	appG := app.Gin{C: c}
 
-	validor := validation.Validation{}
-	validor.Min(id, 1, "id").Message("文章-ID必须大于0")
-
+	// 设置返回值
 	code := e.INVALID_PARAMS
 	var data interface{}
 
-	if !validor.HasErrors() {
-		// 存在
-		if models.ExistArticleByID(id) {
-			data = models.GetArticle(id)
-			code = e.SUCCESS
-		} else {
-			code = e.ERROR_NOT_EXIST_ARTICLE
-		}
-	} else {
-		for _, err := range validor.Errors {
-			// 报错记录
-			logging.Info("err.Key :%s, err.Message:%s", err.Key, err.Message)
-		}
+	// 参数接收
+	id := com.StrTo(c.Param("id")).MustInt()
+
+	// 参数校验
+	validor := validation.Validation{}
+	validor.Min(id, 1, "id").Message("文章-ID必须大于0")
+
+	// 参数有误提前返回
+	if validor.HasErrors() {
+		app.MarkErrors(validor.Errors)
+		appG.Response(http.StatusOK, code, nil)
+		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code": code,
-		"msg":  e.GetMsg(code),
-		"data": data,
-	})
+	// 存在
+	if models.ExistArticleByID(id) {
+		data = models.GetArticle(id)
+		code = e.SUCCESS
+	} else {
+		code = e.ERROR_NOT_EXIST_ARTICLE
+	}
+
+	// 返回值
+	appG.Response(http.StatusOK, code, data)
 }
 
 // @Summary 获取多个文章
