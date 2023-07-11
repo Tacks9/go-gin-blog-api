@@ -3,6 +3,7 @@ package routers
 import (
 	"go-gin-blog-api/middleware/jwt"
 	"go-gin-blog-api/pkg/e"
+	"go-gin-blog-api/pkg/export"
 	"go-gin-blog-api/pkg/setting"
 	"go-gin-blog-api/pkg/upload"
 	"go-gin-blog-api/routers/api"
@@ -42,8 +43,11 @@ func InitRouter() *gin.Engine {
 	// API Swagger 生成文档相关
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	// 文件服务
-	r.StaticFS("/upload/images", http.Dir(upload.GetImageFullPath()))
+	// 文件服务-图片展示
+	r.StaticFS(setting.AppSetting.ImageSavePath, http.Dir(upload.GetImageFullPath()))
+
+	// 文件服务-导出文件
+	r.StaticFS(setting.AppSetting.ExportSavePath, http.Dir(export.GetExcelFullPath()))
 
 	// Upload 上传图片
 	r.POST("/upload", api.UploadImage)
