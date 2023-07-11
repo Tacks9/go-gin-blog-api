@@ -72,6 +72,8 @@ func InitRouter() *gin.Engine {
 		apiv1.DELETE("/tags/:id", v1.DeleteTag)
 		// 导出标签
 		apiv1.POST("/tags/export", v1.ExportTag)
+		// 导入标签
+		apiv1.POST("/tags/import", v1.ImportTag)
 
 		// 文章模块
 		// 	获取文章列表

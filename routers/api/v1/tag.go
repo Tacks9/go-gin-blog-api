@@ -268,3 +268,34 @@ func ExportTag(c *gin.Context) {
 		"export_save_url": export.GetExcelPath() + filename,
 	})
 }
+
+// 导入文章标签
+// @Summary 导入文章标签
+// @Security ApiKeyAuth
+// @Produce  json
+// @Success 200 {object} app.Response
+// @Failure 500 {object} app.Response
+// @Router /api/v1/tags/export [post]
+func ImportTag(c *gin.Context) {
+	appG := app.Gin{C: c}
+
+	// 接收表单数据
+	file, _, err := c.Request.FormFile("file")
+	if err != nil {
+		logging.Info(err)
+		appG.Response(http.StatusOK, e.ERROR, nil)
+		return
+	}
+
+	tagService := tag_service.Tag{}
+
+	// 调用导入
+	err = tagService.Import(file)
+	if err != nil {
+		logging.Info(err)
+		appG.Response(http.StatusOK, e.ERROR_IMPORT_TAG_FAIL, nil)
+		return
+	}
+
+	appG.Response(http.StatusOK, e.SUCCESS, nil)
+}

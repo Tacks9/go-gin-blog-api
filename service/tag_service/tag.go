@@ -7,10 +7,12 @@ import (
 	"go-gin-blog-api/pkg/gredis"
 	"go-gin-blog-api/pkg/logging"
 	"go-gin-blog-api/service/cache_service"
+	"io"
 	"strconv"
 	"time"
 
 	"github.com/tealeg/xlsx"
+	"github.com/xuri/excelize/v2"
 )
 
 type Tag struct {
@@ -150,6 +152,37 @@ func (t *Tag) Export() (string, error) {
 
 	// 返回路径
 	return filename, nil
+}
+
+// 导入
+func (t *Tag) Import(r io.Reader) error {
+	// 读取数据流
+	xlsx, err := excelize.OpenReader(r)
+	if err != nil {
+		return err
+	}
+
+	// 全部单元格的值
+	rows, err := xlsx.GetRows("标签信息")
+	if err != nil {
+		logging.Info(err)
+		return err
+	}
+	for irow, row := range rows {
+		if irow > 0 {
+			// 一行一行读取
+			var data []string
+			for _, cell := range row {
+				data = append(data, cell)
+			}
+
+			// data[1] 标签名称
+			// data[2] 创建人
+			models.AddTag(data[1], 1, data[2])
+		}
+	}
+
+	return nil
 }
 
 // 根据 name 判断是否存在
