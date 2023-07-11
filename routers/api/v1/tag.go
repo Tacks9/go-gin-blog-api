@@ -29,10 +29,12 @@ type EditTagForm struct {
 
 // 获取标签列表
 // @Summary 获取标签列表
+// @Security ApiKeyAuth
 // @Produce  json
 // @Param name query string false "Name"
 // @Param state query int false "State"
-// @Success 200 {string} json "{"code":200,"data":{},"msg":"ok"}"
+// @Success 200 {object} app.Response
+// @Failure 500 {object} app.Response
 // @Router /api/v1/tags [get]
 func GetTags(c *gin.Context) {
 	appG := app.Gin{C: c}
@@ -78,11 +80,13 @@ func GetTags(c *gin.Context) {
 
 // 新增文章标签
 // @Summary 新增文章标签
+// @Security ApiKeyAuth
 // @Produce  json
-// @Param name query string true "Name"
-// @Param state query int false "State"
-// @Param created_by query string false "CreatedBy"
-// @Success 200 {string} json "{"code":200,"data":{},"msg":"ok"}"
+// @Param name body string true "Name"
+// @Param state body int false "State"
+// @Param created_by body string false "CreatedBy"
+// @Success 200 {object} app.Response
+// @Failure 500 {object} app.Response
 // @Router /api/v1/tags [post]
 func AddTag(c *gin.Context) {
 	appG := app.Gin{C: c}
@@ -126,12 +130,14 @@ func AddTag(c *gin.Context) {
 
 // 修改文章标签
 // @Summary 修改文章标签
+// @Security ApiKeyAuth
 // @Produce  json
 // @Param id path int true "ID"
-// @Param name query string true "ID"
-// @Param state query int false "State"
-// @Param modified_by query string true "ModifiedBy"
-// @Success 200 {string} json "{"code":200,"data":{},"msg":"ok"}"
+// @Param name body string true "Name"
+// @Param state body int false "State"
+// @Param modified_by body string true "ModifiedBy"
+// @Success 200 {object} app.Response
+// @Failure 500 {object} app.Response
 // @Router /api/v1/tags/{id} [put]
 func EditTag(c *gin.Context) {
 	appG := app.Gin{C: c}
@@ -190,9 +196,11 @@ func EditTag(c *gin.Context) {
 
 // 删除文章标签
 // @Summary 删除文章标签
+// @Security ApiKeyAuth
 // @Produce  json
 // @Param id path int true "ID"
-// @Success 200 {string} json "{"code":200,"data":{},"msg":"ok"}"
+// @Success 200 {object} app.Response
+// @Failure 500 {object} app.Response
 // @Router /api/v1/tags/{id} [delete]
 func DeleteTag(c *gin.Context) {
 	appG := app.Gin{C: c}

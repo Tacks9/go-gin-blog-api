@@ -1,7 +1,14 @@
+definitions:
+  app.Response:
+    properties:
+      code:
+        type: integer
+      data: {}
+      msg:
+        type: string
+    type: object
 info:
-  contact:
-    name: Tacks9
-    url: https://github.com/Tacks9/go-gin-blog-api
+  contact: {}
   description: An example blog of gin
   title: go-gin-blog-api
   version: "1.0"
@@ -9,57 +16,86 @@ paths:
   /api/v1/articles:
     get:
       parameters:
-      - description: TagId
-        in: query
+      - description: TagID
+        in: body
         name: tag_id
-        type: integer
+        schema:
+          type: integer
       - description: State
-        in: query
+        in: body
         name: state
-        type: integer
+        schema:
+          type: integer
+      - description: CreatedBy
+        in: body
+        name: created_by
+        schema:
+          type: string
       produces:
       - application/json
       responses:
         "200":
-          description: '{"code":200,"data":{},"msg":"ok"}'
+          description: OK
           schema:
-            type: string
+            $ref: '#/definitions/app.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      security:
+      - ApiKeyAuth: []
       summary: 获取多个文章
     post:
       parameters:
-      - description: TagId
-        in: query
+      - description: TagID
+        in: body
         name: tag_id
         required: true
-        type: integer
+        schema:
+          type: integer
       - description: Title
-        in: query
+        in: body
         name: title
         required: true
-        type: string
+        schema:
+          type: string
       - description: Desc
-        in: query
+        in: body
         name: desc
-        type: string
+        required: true
+        schema:
+          type: string
       - description: Content
-        in: query
+        in: body
         name: content
-        type: string
+        required: true
+        schema:
+          type: string
       - description: CreatedBy
-        in: query
+        in: body
         name: created_by
-        type: string
+        required: true
+        schema:
+          type: string
       - description: State
-        in: query
+        in: body
         name: state
-        type: integer
+        required: true
+        schema:
+          type: integer
       produces:
       - application/json
       responses:
         "200":
-          description: '{"code":200,"data":{},"msg":"ok"}'
+          description: OK
           schema:
-            type: string
+            $ref: '#/definitions/app.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      security:
+      - ApiKeyAuth: []
       summary: 新增文章
   /api/v1/articles/{id}:
     delete:
@@ -73,9 +109,15 @@ paths:
       - application/json
       responses:
         "200":
-          description: '{"code":200,"data":{},"msg":"ok"}'
+          description: OK
           schema:
-            type: string
+            $ref: '#/definitions/app.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      security:
+      - ApiKeyAuth: []
       summary: 删除文章
     get:
       parameters:
@@ -88,9 +130,15 @@ paths:
       - application/json
       responses:
         "200":
-          description: '{"code":200,"data":{},"msg":"ok"}'
+          description: OK
           schema:
-            type: string
+            $ref: '#/definitions/app.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      security:
+      - ApiKeyAuth: []
       summary: 获取单个文章
     put:
       parameters:
@@ -99,39 +147,50 @@ paths:
         name: id
         required: true
         type: integer
-      - description: TagId
-        in: query
+      - description: TagID
+        in: body
         name: tag_id
-        required: true
-        type: integer
+        schema:
+          type: string
       - description: Title
-        in: query
+        in: body
         name: title
-        required: true
-        type: string
+        schema:
+          type: string
       - description: Desc
-        in: query
+        in: body
         name: desc
-        type: string
+        schema:
+          type: string
       - description: Content
-        in: query
+        in: body
         name: content
-        type: string
-      - description: CreatedBy
-        in: query
-        name: created_by
-        type: string
+        schema:
+          type: string
+      - description: ModifiedBy
+        in: body
+        name: modified_by
+        required: true
+        schema:
+          type: string
       - description: State
-        in: query
+        in: body
         name: state
-        type: integer
+        schema:
+          type: integer
       produces:
       - application/json
       responses:
         "200":
-          description: '{"code":200,"data":{},"msg":"ok"}'
+          description: OK
           schema:
-            type: string
+            $ref: '#/definitions/app.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      security:
+      - ApiKeyAuth: []
       summary: 修改文章
   /api/v1/tags:
     get:
@@ -148,32 +207,47 @@ paths:
       - application/json
       responses:
         "200":
-          description: '{"code":200,"data":{},"msg":"ok"}'
+          description: OK
           schema:
-            type: string
+            $ref: '#/definitions/app.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      security:
+      - ApiKeyAuth: []
       summary: 获取标签列表
     post:
       parameters:
       - description: Name
-        in: query
+        in: body
         name: name
         required: true
-        type: string
+        schema:
+          type: string
       - description: State
-        in: query
+        in: body
         name: state
-        type: integer
+        schema:
+          type: integer
       - description: CreatedBy
-        in: query
+        in: body
         name: created_by
-        type: string
+        schema:
+          type: string
       produces:
       - application/json
       responses:
         "200":
-          description: '{"code":200,"data":{},"msg":"ok"}'
+          description: OK
           schema:
-            type: string
+            $ref: '#/definitions/app.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      security:
+      - ApiKeyAuth: []
       summary: 新增文章标签
   /api/v1/tags/{id}:
     delete:
@@ -187,9 +261,15 @@ paths:
       - application/json
       responses:
         "200":
-          description: '{"code":200,"data":{},"msg":"ok"}'
+          description: OK
           schema:
-            type: string
+            $ref: '#/definitions/app.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      security:
+      - ApiKeyAuth: []
       summary: 删除文章标签
     put:
       parameters:
@@ -198,27 +278,36 @@ paths:
         name: id
         required: true
         type: integer
-      - description: ID
-        in: query
+      - description: Name
+        in: body
         name: name
         required: true
-        type: string
+        schema:
+          type: string
       - description: State
-        in: query
+        in: body
         name: state
-        type: integer
+        schema:
+          type: integer
       - description: ModifiedBy
-        in: query
+        in: body
         name: modified_by
         required: true
-        type: string
+        schema:
+          type: string
       produces:
       - application/json
       responses:
         "200":
-          description: '{"code":200,"data":{},"msg":"ok"}'
+          description: OK
           schema:
-            type: string
+            $ref: '#/definitions/app.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.Response'
+      security:
+      - ApiKeyAuth: []
       summary: 修改文章标签
   /auth:
     get:
@@ -241,4 +330,9 @@ paths:
           schema:
             type: string
       summary: 获取 token
+securityDefinitions:
+  ApiKeyAuth:
+    in: query
+    name: token
+    type: apiKey
 swagger: "2.0"

@@ -13,6 +13,9 @@ import (
 // @title go-gin-blog-api
 // @version 1.0
 // @description An example blog of gin
+// @securityDefinitions.apikey ApiKeyAuth
+// @in query
+// @name token
 // @contact.name Tacks9
 // @contact.url https://github.com/Tacks9/go-gin-blog-api
 func main() {
