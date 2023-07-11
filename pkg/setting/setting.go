@@ -22,6 +22,9 @@ type App struct {
 	LogSaveName string
 	LogFileExt  string
 	TimeFormat  string
+
+	ExportSavePath string
+	PrefixUrl      string
 }
 
 // 服务器配置相关
