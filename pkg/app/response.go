@@ -20,3 +20,14 @@ func (g *Gin) Response(httpCode, errCode int, data interface{}) {
 
 	return
 }
+
+// 输出 JSON
+func (g *Gin) FormResponse(httpCode, errCode int, errMsg string) {
+	g.C.JSON(httpCode, gin.H{
+		"code": errCode,
+		"msg":  e.GetMsg(errCode) + "-" + errMsg,
+		"data": nil,
+	})
+
+	return
+}

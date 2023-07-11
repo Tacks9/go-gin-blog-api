@@ -15,6 +15,24 @@ import (
 	"github.com/unknwon/com"
 )
 
+// 新增文章-表单验证
+type AddArticleForm struct {
+	TagID         int    `form:"tag_id" valid:"Required;Min(1)"`
+	Title         string `form:"title" valid:"Required;MaxSize(100)"`
+	Desc          string `form:"desc" valid:"Required;MaxSize(255)"`
+	Content       string `form:"content" valid:"Required;MaxSize(65535)"`
+	CreatedBy     string `form:"created_by" valid:"Required;MaxSize(100)"`
+	CoverImageUrl string `form:"cover_image_url" valid:"Required;MaxSize(255)"`
+	State         int    `form:"state" valid:"Range(0,1)"`
+}
+
+// 验证器-文案
+var MessagesForm = map[string]string{
+	"Required": "不能为空",
+	"MaxSize":  "最大长度为 %d",
+	"Range":    "允许的范围是:%d-%d",
+}
+
 // 获取单个文章
 // @Summary 获取单个文章
 // @Produce  json
@@ -141,54 +159,29 @@ func GetArticles(c *gin.Context) {
 func AddArticle(c *gin.Context) {
 	var appG = app.Gin{C: c}
 
-	tagId := com.StrTo(c.Query("tag_id")).MustInt()
-	title := c.Query("title")
-	desc := c.Query("desc")
-	content := c.Query("content")
-	createdBy := c.Query("created_by")
-	state := com.StrTo(c.DefaultQuery("state", "0")).MustInt()
-	coverImageUrl := c.Query("cover_image_url")
+	// 绑定表单
+	var form AddArticleForm
 
-	// 参数校验
-	valid := validation.Validation{}
-	valid.Min(tagId, 1, "tag_id").Message("文章-标签ID必须大于0")
-	valid.Required(title, "title").Message("文章-标题不能为空")
-	valid.Required(desc, "desc").Message("文章-简述不能为空")
-	valid.Required(content, "content").Message("文章-内容不能为空")
-	valid.Required(createdBy, "created_by").Message("文章-创建人不能为空")
-	valid.Range(state, 0, 1, "state").Message("文章-状态只允许0或1")
-
-	// 验证器
-	if valid.HasErrors() {
-		app.MarkErrors(valid.Errors)
-		appG.Response(http.StatusOK, e.INVALID_PARAMS, nil)
+	// 验证器-参数校验
+	httpCode, errCode, errMsg := app.BindAndValid(c, &form, MessagesForm)
+	if errCode != e.SUCCESS {
+		appG.FormResponse(httpCode, errCode, errMsg)
 		return
 	}
 
 	// 判断是否存在
 	articleService := article_service.Article{
-		TagID:         tagId,
-		Title:         title,
-		Desc:          desc,
-		Content:       content,
-		State:         state,
-		CreatedBy:     createdBy,
-		CoverImageUrl: coverImageUrl,
-	}
-	exists, err := articleService.ExistByID()
-	if err != nil {
-		logging.Info(err)
-		appG.Response(http.StatusInternalServerError, e.ERROR_CHECK_EXIST_ARTICLE_FAIL, nil)
-		return
-	}
-	if !exists {
-		appG.Response(http.StatusOK, e.ERROR_NOT_EXIST_ARTICLE, nil)
-		return
+		TagID:         form.TagID,
+		Title:         form.Title,
+		Desc:          form.Desc,
+		Content:       form.Content,
+		CoverImageUrl: form.CoverImageUrl,
+		State:         form.State,
+		CreatedBy:     form.CreatedBy,
 	}
 
 	// 新增
-	err = articleService.Add()
-	if err != nil {
+	if err := articleService.Add(); err != nil {
 		appG.Response(http.StatusInternalServerError, e.ERROR_ADD_ARTICLE_FAIL, nil)
 		return
 	}
