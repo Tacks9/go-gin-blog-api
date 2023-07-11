@@ -3,9 +3,14 @@ package tag_service
 import (
 	"encoding/json"
 	"go-gin-blog-api/models"
+	"go-gin-blog-api/pkg/export"
 	"go-gin-blog-api/pkg/gredis"
 	"go-gin-blog-api/pkg/logging"
 	"go-gin-blog-api/service/cache_service"
+	"strconv"
+	"time"
+
+	"github.com/tealeg/xlsx"
 )
 
 type Tag struct {
@@ -80,6 +85,71 @@ func (t *Tag) GetAll() ([]models.Tag, error) {
 
 	gredis.Set(key, tags, 3600)
 	return tags, nil
+}
+
+func (t *Tag) Export() (string, error) {
+	tags, err := t.GetAll()
+	if err != nil {
+		return "", err
+	}
+
+	// 创建一个实例
+	file := xlsx.NewFile()
+	// 标签 tab
+	sheet, err := file.AddSheet("标签信息")
+	if err != nil {
+		return "", err
+	}
+
+	// 创建一行
+	row := sheet.AddRow()
+
+	// 表头内容
+	titles := []string{"ID", "标签名称", "创建人", "创建时间", "修改人", "修改时间"}
+
+	// 创建单元格
+	var cell *xlsx.Cell
+	for _, title := range titles {
+		// 每个单元格填写对应内容
+		cell = row.AddCell()
+		cell.Value = title
+	}
+
+	// 填充数据
+	for _, v := range tags {
+		values := []string{
+			strconv.Itoa(v.ID),
+			v.Name,
+			v.CreatedBy,
+			strconv.Itoa(v.CreatedOn),
+			v.ModifiedBy,
+			strconv.Itoa(v.ModifiedOn),
+		}
+
+		// 创建新的一行
+		row = sheet.AddRow()
+		for _, value := range values {
+			// 追加新的单元格
+			cell = row.AddCell()
+			cell.Value = value
+		}
+	}
+
+	// 获取当前时间
+	time := strconv.Itoa(int(time.Now().Unix()))
+	filename := "tags-" + time + ".xlsx"
+
+	// 获取文件保存路径
+	fullPath := export.GetExcelFullPath() + filename
+
+	// 保存文件
+	err = file.Save(fullPath)
+	if err != nil {
+		return "", err
+	}
+
+	// 返回路径
+	return filename, nil
 }
 
 // 根据 name 判断是否存在

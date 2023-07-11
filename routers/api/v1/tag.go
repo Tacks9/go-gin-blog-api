@@ -3,6 +3,8 @@ package v1
 import (
 	"go-gin-blog-api/pkg/app"
 	"go-gin-blog-api/pkg/e"
+	"go-gin-blog-api/pkg/export"
+	"go-gin-blog-api/pkg/logging"
 	"go-gin-blog-api/pkg/setting"
 	"go-gin-blog-api/pkg/util"
 	"go-gin-blog-api/service/tag_service"
@@ -236,4 +238,33 @@ func DeleteTag(c *gin.Context) {
 	}
 
 	appG.Response(http.StatusOK, e.SUCCESS, nil)
+}
+
+// 导出文章标签
+// @Summary 导出文章标签
+// @Security ApiKeyAuth
+// @Produce  json
+// @Success 200 {object} app.Response
+// @Failure 500 {object} app.Response
+// @Router /api/v1/tags/export [post]
+func ExportTag(c *gin.Context) {
+	appG := app.Gin{C: c}
+
+	tagService := tag_service.Tag{
+		State: 1,
+	}
+
+	// 调用导出
+	filename, err := tagService.Export()
+	if err != nil {
+		logging.Info(err)
+		appG.Response(http.StatusOK, e.ERROR_EXPORT_TAG_FAIL, nil)
+		return
+	}
+
+	// 返回地址
+	appG.Response(http.StatusOK, e.SUCCESS, map[string]string{
+		"export_url":      export.GetExcelFullUrl(filename),
+		"export_save_url": export.GetExcelPath() + filename,
+	})
 }
