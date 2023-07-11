@@ -26,9 +26,22 @@ type AddArticleForm struct {
 	State         int    `form:"state" valid:"Range(0,1)"`
 }
 
+// 编辑文章-表单验证
+type EditArticleForm struct {
+	ID            int    `form:"id" valid:"Required;Min(1)"`
+	TagID         int    `form:"tag_id" valid:"Required;Min(1)"`
+	Title         string `form:"title" valid:"Required;MaxSize(100)"`
+	Desc          string `form:"desc" valid:"Required;MaxSize(255)"`
+	Content       string `form:"content" valid:"Required;MaxSize(65535)"`
+	ModifiedBy    string `form:"modified_by" valid:"Required;MaxSize(100)"`
+	CoverImageUrl string `form:"cover_image_url" valid:"Required;MaxSize(255)"`
+	State         int    `form:"state" valid:"Range(0,1)"`
+}
+
 // 验证器-文案
 var MessagesForm = map[string]string{
 	"Required": "不能为空",
+	"Min":      "最小为 %d",
 	"MaxSize":  "最大长度为 %d",
 	"Range":    "允许的范围是:%d-%d",
 }
@@ -203,46 +216,27 @@ func AddArticle(c *gin.Context) {
 // @Router /api/v1/articles/{id} [put]
 func EditArticle(c *gin.Context) {
 	var appG = app.Gin{C: c}
-	valid := validation.Validation{}
 
-	id := com.StrTo(c.Param("id")).MustInt()
-	tagId := com.StrTo(c.Query("tag_id")).MustInt()
-	title := c.Query("title")
-	desc := c.Query("desc")
-	content := c.Query("content")
-	modifiedBy := c.Query("modified_by")
-	coverImageUrl := c.Query("cover_image_url")
+	// 绑定表单
+	var form EditArticleForm
 
-	var state int = -1
-	if arg := c.Query("state"); arg != "" {
-		state = com.StrTo(arg).MustInt()
-		valid.Range(state, 0, 1, "state").Message("文章-状态只允许0或1")
-	}
-
-	valid.Min(id, 1, "id").Message("文章-ID必须大于0")
-	valid.MaxSize(title, 100, "title").Message("文章-标题最长为100字符")
-	valid.MaxSize(desc, 255, "desc").Message("文章-简述最长为255字符")
-	valid.MaxSize(content, 65535, "content").Message("文章-内容最长为65535字符")
-	valid.Required(modifiedBy, "modified_by").Message("文章-修改人不能为空")
-	valid.MaxSize(modifiedBy, 100, "modified_by").Message("文章-修改人最长为100字符")
-
-	// 验证器
-	if valid.HasErrors() {
-		app.MarkErrors(valid.Errors)
-		appG.Response(http.StatusOK, e.INVALID_PARAMS, nil)
+	// 验证器-参数校验
+	httpCode, errCode, errMsg := app.BindAndValid(c, &form, MessagesForm)
+	if errCode != e.SUCCESS {
+		appG.FormResponse(httpCode, errCode, errMsg)
 		return
 	}
 
 	// 判断是否存在
 	articleService := article_service.Article{
-		ID:            id,
-		TagID:         tagId,
-		Title:         title,
-		Desc:          desc,
-		Content:       content,
-		State:         state,
-		ModifiedBy:    modifiedBy,
-		CoverImageUrl: coverImageUrl,
+		ID:            form.ID,
+		TagID:         form.TagID,
+		Title:         form.Title,
+		Desc:          form.Desc,
+		Content:       form.Content,
+		CoverImageUrl: form.CoverImageUrl,
+		ModifiedBy:    form.ModifiedBy,
+		State:         form.State,
 	}
 	exists, err := articleService.ExistByID()
 	if err != nil {
