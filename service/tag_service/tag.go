@@ -2,6 +2,7 @@ package tag_service
 
 import (
 	"encoding/json"
+	"fmt"
 	"go-gin-blog-api/models"
 	"go-gin-blog-api/pkg/export"
 	"go-gin-blog-api/pkg/gredis"
@@ -168,6 +169,7 @@ func (t *Tag) Import(r io.Reader) error {
 		logging.Info(err)
 		return err
 	}
+
 	for irow, row := range rows {
 		if irow > 0 {
 			// 一行一行读取
@@ -178,7 +180,29 @@ func (t *Tag) Import(r io.Reader) error {
 
 			// data[1] 标签名称
 			// data[2] 创建人
-			models.AddTag(data[1], 1, data[2])
+			// models.AddTag(data[1], 1, data[2])
+
+			// 新增标签
+			t.Name = data[1]
+			t.CreatedBy = data[2]
+			t.State = 1
+
+			// 判断标签是否存在
+			exists, err := t.ExistByName()
+			if err != nil {
+				logging.Info(err)
+				continue
+			}
+			if exists {
+				logging.Info(fmt.Sprintf("%s 数据重复", t.Name))
+				continue
+			}
+			// 数据录入
+			err = t.Add()
+			if err != nil {
+				logging.Info(err)
+				continue
+			}
 		}
 	}
 
