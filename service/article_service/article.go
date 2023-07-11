@@ -35,14 +35,17 @@ func (a *Article) Add() error {
 		"state":           a.State,
 	}
 
-	models.AddArticle(article)
+	// 添加数据
+	if err := models.AddArticle(article); err != nil {
+		return err
+	}
 
 	return nil
 }
 
 // Edit 编辑文章
 func (a *Article) Edit() error {
-	models.EditArticle(a.ID, map[string]interface{}{
+	return models.EditArticle(a.ID, map[string]interface{}{
 		"tag_id":          a.TagID,
 		"title":           a.Title,
 		"desc":            a.Desc,
@@ -52,7 +55,6 @@ func (a *Article) Edit() error {
 		"modified_by":     a.ModifiedBy,
 	})
 
-	return nil
 }
 
 // Get 获取一篇文章
@@ -74,13 +76,17 @@ func (a *Article) Get() (*models.Article, error) {
 	}
 
 	// 不存在读取数据库
-	article := models.GetArticle(a.ID)
-	err := gredis.Set(key, article, 3600)
+	article, err := models.GetArticle(a.ID)
 	if err != nil {
-		logging.Info(err)
+		return nil, err
 	}
 
-	return &article, nil
+	err = gredis.Set(key, article, 3600)
+	if err != nil {
+		return nil, err
+	}
+
+	return article, nil
 }
 
 // GetAll() 获取一批文章
@@ -110,22 +116,22 @@ func (a *Article) GetAll() ([]*models.Article, error) {
 	}
 
 	// 不存在读取数据库
-	articles := models.GetArticles(a.PageNum, a.PageSize, a.getMaps())
-
-	// 转化类型
-	articlePointers := make([]*models.Article, len(articles))
-	for i, article := range articles {
-		articlePointers[i] = &article
+	articles, err := models.GetArticles(a.PageNum, a.PageSize, a.getMaps())
+	if err != nil {
+		return nil, err
 	}
 
-	gredis.Set(key, articles, 3600)
-	return articlePointers, nil
+	err = gredis.Set(key, articles, 3600)
+	if err != nil {
+		return nil, err
+	}
+
+	return articles, nil
 }
 
 // Delete 删除
 func (a *Article) Delete() error {
-	models.DeleteArticle(a.ID)
-	return nil
+	return models.DeleteArticle(a.ID)
 }
 
 // ExistByID 判断是否存在
@@ -135,7 +141,7 @@ func (a *Article) ExistByID() (bool, error) {
 
 // Count 获取数量
 func (a *Article) Count() (int, error) {
-	return models.GetArticleTotal(a.getMaps()), nil
+	return models.GetArticleTotal(a.getMaps())
 }
 
 // 获取检查条件
