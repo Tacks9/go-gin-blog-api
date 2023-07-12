@@ -333,7 +333,26 @@ func GenerateArticlePoster(c *gin.Context) {
 		return
 	}
 
-	article := &article_service.Article{}
+	// 文章详情获取
+	articleService := article_service.Article{ID: id}
+	exists, err := articleService.ExistByID()
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.ERROR_CHECK_EXIST_ARTICLE_FAIL, nil)
+		return
+	}
+	if !exists {
+		appG.Response(http.StatusOK, e.ERROR_NOT_EXIST_ARTICLE, nil)
+		return
+	}
+
+	// 获取文章详情
+	article, err := articleService.Get()
+	if err != nil {
+		appG.Response(http.StatusInternalServerError, e.ERROR_GET_ARTICLE_FAIL, nil)
+		return
+	}
+
+	// 文章详情页地址
 	article_url := setting.AppSetting.PrefixUrl + "/qrcode/articles/" + strconv.Itoa(id)
 
 	// 生成二维码
@@ -353,7 +372,7 @@ func GenerateArticlePoster(c *gin.Context) {
 			Y1: 1200,
 		},
 		&article_service.Pt{
-			X: 300,
+			X: 255,
 			Y: 600,
 		},
 	)
