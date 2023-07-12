@@ -80,7 +80,6 @@ func (q *QrCode) Encode(path string) (string, string, error) {
 	src := path + name
 	fmt.Println(src)
 	if file.CheckNotExist(src) == true {
-		fmt.Println(11)
 		// 创建二维码
 		code, err := qr.Encode(q.URL, q.Level, q.Mode)
 		if err != nil {

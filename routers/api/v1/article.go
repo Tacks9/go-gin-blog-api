@@ -4,13 +4,16 @@ import (
 	"go-gin-blog-api/pkg/app"
 	"go-gin-blog-api/pkg/e"
 	"go-gin-blog-api/pkg/logging"
+	"go-gin-blog-api/pkg/qrcode"
 	"go-gin-blog-api/pkg/setting"
 	"go-gin-blog-api/pkg/util"
 	"go-gin-blog-api/service/article_service"
+	"strconv"
 
 	"net/http"
 
 	"github.com/astaxie/beego/validation"
+	"github.com/boombuler/barcode/qr"
 	"github.com/gin-gonic/gin"
 	"github.com/unknwon/com"
 )
@@ -315,4 +318,56 @@ func DeleteArticle(c *gin.Context) {
 	// 数据返回
 	appG.Response(http.StatusOK, e.SUCCESS, nil)
 
+}
+
+func GenerateArticlePoster(c *gin.Context) {
+	appG := app.Gin{C: c}
+
+	id := com.StrTo(c.Param("id")).MustInt()
+	valid := validation.Validation{}
+	valid.Min(id, 1, "id").Message("文章-ID必须大于0")
+	// 验证器
+	if valid.HasErrors() {
+		app.MarkErrors(valid.Errors)
+		appG.Response(http.StatusOK, e.INVALID_PARAMS, nil)
+		return
+	}
+
+	article := &article_service.Article{}
+	article_url := setting.AppSetting.PrefixUrl + "/qrcode/articles/" + strconv.Itoa(id)
+
+	// 生成二维码
+	qr := qrcode.NewQrCode(article_url, 300, 300, qr.M, qr.Auto)
+	// 海报文件名
+	posterName := article_service.GetPosterFlag() + "-" + qrcode.GetQrCodeFileName(qr.URL) + qr.GetQrCodeExt()
+
+	// 创建一个海报
+	articlePoster := article_service.NewArticlePoster(posterName, article, qr)
+	articlePosterBgService := article_service.NewArticlePosterBg(
+		"public/static/qrcode/bg.jpg",
+		articlePoster,
+		&article_service.Rect{
+			X0: 0,
+			Y0: 0,
+			X1: 800,
+			Y1: 1200,
+		},
+		&article_service.Pt{
+			X: 300,
+			Y: 600,
+		},
+	)
+
+	// 生成
+	_, filePath, err := articlePosterBgService.Generate()
+	if err != nil {
+		logging.Info(err)
+		appG.Response(http.StatusOK, e.ERROR_GEN_ARTICLE_POSTER_FAIL, nil)
+		return
+	}
+
+	appG.Response(http.StatusOK, e.SUCCESS, map[string]string{
+		"poster_url":      qrcode.GetQrCodeFullUrl(posterName),
+		"poster_save_url": filePath + posterName,
+	})
 }

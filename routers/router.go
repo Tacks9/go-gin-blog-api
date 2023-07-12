@@ -94,6 +94,9 @@ func InitRouter() *gin.Engine {
 		//	删除指定文章
 		apiv1.DELETE("/articles/:id", v1.DeleteArticle)
 
+		// 文章海报
+		apiv1.GET("/qrcode/articles/:id", v1.GenerateArticlePoster)
+
 	}
 
 	return r
