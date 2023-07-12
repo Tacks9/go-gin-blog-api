@@ -20,12 +20,12 @@ func GetImagePath() string {
 
 // 获取图片保存绝对路径
 func GetImageFullPath() string {
-	return setting.AppSetting.RuntimeRootPath + GetImagePath()
+	return setting.AppSetting.PublicRootPath + GetImagePath()
 }
 
 // 获取图片链接
 func GetImageFullUrl(name string) string {
-	return setting.AppSetting.ImagePrefixUrl + "/" + GetImagePath() + name
+	return setting.AppSetting.PrefixUrl + "/" + GetImagePath() + name
 }
 
 // 获取MD5图片名

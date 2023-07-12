@@ -23,7 +23,7 @@ func GetExt(fileName string) string {
 
 // 判断文件是否存在
 func CheckNotExist(src string) bool {
-	_, err := os.Create(src)
+	_, err := os.Stat(src)
 
 	return os.IsNotExist(err)
 }
@@ -76,7 +76,7 @@ func MustOpen(fileName, filePath string) (*os.File, error) {
 		return nil, fmt.Errorf("os.Getwd err: %v", err)
 	}
 
-	// 获取路径
+	// 获取绝对路径
 	src := dir + "/" + filePath
 	perm := CheckPermission(src)
 	if perm == true {

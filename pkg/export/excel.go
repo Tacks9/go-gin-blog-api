@@ -14,5 +14,5 @@ func GetExcelPath() string {
 
 // 获取绝对路径
 func GetExcelFullPath() string {
-	return setting.AppSetting.RuntimeRootPath + GetExcelPath()
+	return setting.AppSetting.PublicRootPath + GetExcelPath()
 }

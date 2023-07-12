@@ -9,23 +9,24 @@ import (
 
 // APP 配置相关
 type App struct {
-	JwtSecret       string
-	PageSize        int
-	RuntimeRootPath string
+	JwtSecret string
+	PageSize  int
 
-	ImagePrefixUrl string
-	ImageSavePath  string
-	ImageMaxSize   int
-	ImageAllowExts []string
+	RuntimeRootPath string
 
 	LogSavePath string
 	LogSaveName string
 	LogFileExt  string
 	TimeFormat  string
 
-	ExportSavePath string
 	PrefixUrl      string
+	PublicRootPath string
 
+	ImageSavePath  string
+	ImageMaxSize   int
+	ImageAllowExts []string
+
+	ExportSavePath string
 	QrCodeSavePath string
 }
 

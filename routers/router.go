@@ -4,6 +4,7 @@ import (
 	"go-gin-blog-api/middleware/jwt"
 	"go-gin-blog-api/pkg/e"
 	"go-gin-blog-api/pkg/export"
+	"go-gin-blog-api/pkg/qrcode"
 	"go-gin-blog-api/pkg/setting"
 	"go-gin-blog-api/pkg/upload"
 	"go-gin-blog-api/routers/api"
@@ -49,11 +50,17 @@ func InitRouter() *gin.Engine {
 	// 文件服务-导出文件
 	r.StaticFS(setting.AppSetting.ExportSavePath, http.Dir(export.GetExcelFullPath()))
 
+	// 文件服务-二维码
+	r.StaticFS(setting.AppSetting.QrCodeSavePath, http.Dir(qrcode.GetQrCodeFullPath()))
+
 	// Upload 上传图片
 	r.POST("/upload", api.UploadImage)
 
 	// 获取 token
 	r.GET("/auth", api.GetAuth)
+
+	// 官网二维码生成
+	r.POST("/qrcode", api.Generate)
 
 	// 封装 API V1
 	apiv1 := r.Group("/api/v1")
@@ -86,6 +93,7 @@ func InitRouter() *gin.Engine {
 		apiv1.PUT("/articles/:id", v1.EditArticle)
 		//	删除指定文章
 		apiv1.DELETE("/articles/:id", v1.DeleteArticle)
+
 	}
 
 	return r
