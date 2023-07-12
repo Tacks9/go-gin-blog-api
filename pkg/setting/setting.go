@@ -25,6 +25,8 @@ type App struct {
 
 	ExportSavePath string
 	PrefixUrl      string
+
+	QrCodeSavePath string
 }
 
 // 服务器配置相关
