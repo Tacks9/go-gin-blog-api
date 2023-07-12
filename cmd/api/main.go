@@ -29,11 +29,10 @@ func main() {
 	// Redis 设置
 	gredis.Setup()
 
+	logging.Info("Api Starting...")
+
 	// 获取路由
 	router := routers.InitRouter()
-
-	// 测试日志启动
-	logging.Info("启动日志...")
 
 	// 优雅重启
 	// fvbock/endless 热更新是采取创建子进程后，将原进程退出的方式

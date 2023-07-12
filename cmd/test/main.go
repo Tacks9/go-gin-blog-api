@@ -8,7 +8,7 @@ import (
 	"go-gin-blog-api/pkg/setting"
 )
 
-func test() {
+func main() {
 
 	// 初始化全局配置
 	setting.Setup()

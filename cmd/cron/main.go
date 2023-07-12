@@ -2,6 +2,7 @@ package main
 
 import (
 	"go-gin-blog-api/models"
+	"go-gin-blog-api/pkg/gredis"
 	"go-gin-blog-api/pkg/logging"
 	"go-gin-blog-api/pkg/setting"
 	"time"
@@ -10,12 +11,16 @@ import (
 )
 
 func main() {
-	logging.Info("Starting...")
-
 	// 初始化全局配置
 	setting.Setup()
 	// 初始化数据库
 	models.Setup()
+	// 初始化日志配置
+	logging.Setup()
+	// Redis 设置
+	gredis.Setup()
+
+	logging.Info("Cron Starting...")
 
 	// 创建一个定时任务
 	c := cron.New()
