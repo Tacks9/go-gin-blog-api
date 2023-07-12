@@ -353,7 +353,7 @@ func GenerateArticlePoster(c *gin.Context) {
 	}
 
 	// 文章详情页地址
-	article_url := setting.AppSetting.PrefixUrl + "/qrcode/articles/" + strconv.Itoa(id)
+	article_url := setting.AppSetting.PrefixUrl + "/api/v1/articles/" + strconv.Itoa(id) + "?token=" + c.Query("token")
 
 	// 生成二维码
 	qr := qrcode.NewQrCode(article_url, 300, 300, qr.M, qr.Auto)
